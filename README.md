@@ -2,7 +2,6 @@
 
 AI Video Summarization and Quiz Generation - an offline AI pipeline that transforms any video into a written transcript, a concise summary, and an interactive multiple-choice quiz.
 
-Built as a final year project by Amulya.
 
 ## Features
 
@@ -43,7 +42,7 @@ Built as a final year project by Amulya.
 
 ## Developed By
 
-Amulya - Final Year Project
+Amulya
 
 AI Video Summarization and Quiz Generation
 '@ | Out-File -FilePath README.md -Encoding utf8
