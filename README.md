@@ -4,7 +4,7 @@
 
 An offline AI pipeline that transforms any video into a written transcript, a concise summary, and an interactive multiple-choice quiz — no paid APIs, no API keys, runs entirely on your own machine.
 
-**Developed by Amulya — Final Year Project**
+**Developed by Amulya **
 
 ---
 
@@ -128,7 +128,7 @@ The app opens automatically at `http://localhost:8501`.
 
 ## 👩‍💻 Developed By
 
-**Amulya** — Final Year Project
+**Amulya** 
 
 *AI Video Summarization & Quiz Generation*
 
