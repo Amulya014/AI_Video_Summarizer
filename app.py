@@ -212,7 +212,7 @@ for folder in folders:
 
 @st.cache_resource(show_spinner=False)
 def load_whisper_model():
-    return whisper.load_model("base")
+    return whisper.load_model("tiny")
 
 
 def format_duration(seconds):
