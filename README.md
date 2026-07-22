@@ -7,7 +7,6 @@ An offline AI pipeline that transforms any video into a written transcript, a co
 **Developed by Amulya **
 
 
-### 🔗 [Try the Live App](https://amulya014-ai-video-summarizer-app-mlkz1r.streamlit.app/)
 ---
 
 ## 📖 Table of Contents
