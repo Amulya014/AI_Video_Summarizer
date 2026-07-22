@@ -1,7 +1,7 @@
 streamlit
 numpy<2
 moviepy
-openai-whisper
+faster-whisper
 transformers<5.0
 torch
 sentencepiece

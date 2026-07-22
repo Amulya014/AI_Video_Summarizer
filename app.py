@@ -2,7 +2,7 @@ import streamlit as st
 import os
 import requests
 from moviepy import VideoFileClip
-import whisper
+from faster_whisper import WhisperModel
 from streamlit_lottie import st_lottie
 
 from summarizer import summarize_text
@@ -212,7 +212,7 @@ for folder in folders:
 
 @st.cache_resource(show_spinner=False)
 def load_whisper_model():
-    return whisper.load_model("tiny")
+    return WhisperModel("tiny", device="cpu", compute_type="int8")
 
 
 def format_duration(seconds):
@@ -288,8 +288,8 @@ if st.session_state["page"] == "upload":
             progress.progress(25, text="Generating transcript...")
 
             model = load_whisper_model()
-            result = model.transcribe(audio_path)
-            transcript = result["text"]
+            segments, info = model.transcribe(audio_path)
+            transcript = " ".join(segment.text for segment in segments).strip()
             progress.progress(60, text="Generating summary...")
 
             transcript_path = os.path.join(
