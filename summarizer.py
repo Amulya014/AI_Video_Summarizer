@@ -47,11 +47,9 @@ def summarize_text(text, min_length=30, max_length=130):
     summarizer = load_summarizer()
     chunks = chunk_text(text)
 
-    # Step 1: summarize each chunk
     chunk_summaries = []
     for chunk in chunks:
         word_count = len(chunk.split())
-        # avoid errors when a chunk is shorter than max_length
         this_max = min(max_length, max(20, word_count // 2))
         this_min = min(min_length, this_max - 5) if this_max > 5 else 5
 
@@ -65,7 +63,6 @@ def summarize_text(text, min_length=30, max_length=130):
 
     combined = " ".join(chunk_summaries)
 
-    # Step 2: if we had multiple chunks, do a final pass for cohesion
     if len(chunks) > 1:
         final_word_count = len(combined.split())
         this_max = min(max_length, max(30, final_word_count // 2))

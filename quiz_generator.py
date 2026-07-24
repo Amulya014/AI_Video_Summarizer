@@ -22,12 +22,7 @@ def load_nlp():
 
 
 def extract_candidates(doc):
-    """
-    Pulls out named entities and important noun chunks as quiz-worthy terms,
-    grouped by a rough 'category' so distractors make sense
-    (e.g. don't mix a person's name with a number).
-    """
-    candidates = {}  # category -> set of terms
+    candidates = {}
 
     for ent in doc.ents:
         label = ent.label_
@@ -35,7 +30,6 @@ def extract_candidates(doc):
         if len(term.split()) <= 4 and len(term) > 2:
             candidates.setdefault(label, set()).add(term)
 
-    # Fallback: noun chunks if not enough named entities were found
     if sum(len(v) for v in candidates.values()) < 4:
         for chunk in doc.noun_chunks:
             term = chunk.text.strip()
@@ -54,8 +48,6 @@ def build_questions(text, num_questions=5):
     doc = nlp(text)
 
     candidates = extract_candidates(doc)
-
-    # Flatten all terms with their categories for distractor lookup
     all_terms_by_category = {k: list(v) for k, v in candidates.items()}
 
     questions = []
@@ -71,7 +63,6 @@ def build_questions(text, num_questions=5):
         sent_doc = nlp(sent)
         sent_candidates = extract_candidates(sent_doc)
 
-        # find a term in this sentence we haven't used yet
         chosen_term = None
         chosen_category = None
         for category, terms in sent_candidates.items():
@@ -86,7 +77,6 @@ def build_questions(text, num_questions=5):
         if not chosen_term:
             continue
 
-        # Build distractors from the same category elsewhere in the transcript
         same_category_pool = [
             t for t in all_terms_by_category.get(chosen_category, [])
             if t != chosen_term
@@ -94,7 +84,6 @@ def build_questions(text, num_questions=5):
         random.shuffle(same_category_pool)
         distractors = same_category_pool[:3]
 
-        # Pad distractors if we don't have enough of the same category
         if len(distractors) < 3:
             other_pool = [
                 t for cat, terms in all_terms_by_category.items()
@@ -104,7 +93,7 @@ def build_questions(text, num_questions=5):
             distractors += other_pool[: (3 - len(distractors))]
 
         if len(distractors) < 2:
-            continue  # not enough content to make a fair MCQ, skip
+            continue
 
         options = distractors + [chosen_term]
         random.shuffle(options)

@@ -1,8 +1,8 @@
 import streamlit as st
 import os
 import requests
+import whisper
 from moviepy import VideoFileClip
-from faster_whisper import WhisperModel
 from streamlit_lottie import st_lottie
 
 from summarizer import summarize_text
@@ -34,7 +34,6 @@ st.set_page_config(
 # -----------------------------
 st.markdown("""
 <style>
-/* ---------- AURORA BACKGROUND ---------- */
 .stApp,
 [data-testid="stAppViewContainer"],
 [data-testid="stMain"] {
@@ -48,12 +47,10 @@ st.markdown("""
     position: relative;
 }
 
-/* Transparent header so it blends with the aurora background instead of a black bar */
 [data-testid="stHeader"] {
     background: transparent !important;
 }
 
-/* Shrink the uploaded video preview */
 video {
     max-width: 480px !important;
     max-height: 270px !important;
@@ -62,13 +59,13 @@ video {
     display: block;
     margin: 0 auto;
 }
+
 @keyframes auroraShift {
     0%   { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 50%; }
     50%  { background-position: 20% 10%, 80% 20%, 60% 90%, 100% 50%; }
     100% { background-position: 0% 0%, 100% 0%, 50% 100%, 0% 50%; }
 }
 
-/* Twinkling star particles */
 .stApp::after {
     content: "";
     position: fixed;
@@ -88,7 +85,6 @@ video {
     to   { opacity: 1; }
 }
 
-/* Floating glow orbs */
 .bg-orb {
     position: fixed;
     border-radius: 50%;
@@ -117,7 +113,6 @@ video {
     margin-right: auto;
 }
 
-/* ---------- LIGHT GLASS CARDS WITH DARK TEXT ---------- */
 .stat-card, .content-card, .quiz-card {
     background: rgba(255,255,255,0.92);
     backdrop-filter: blur(18px) saturate(140%);
@@ -143,7 +138,6 @@ video {
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ---------- HERO (stays dark bg, light text — needed for contrast against aurora) ---------- */
 .hero-wrap {
     position: relative;
     overflow: hidden;
@@ -158,7 +152,6 @@ video {
 .hero-title { position: relative; z-index: 1; font-size: 28px; font-weight: 700; margin: 0 0 8px; color: #FFFFFF; animation: fadeInUp 0.5s ease-out both; }
 .hero-sub   { position: relative; z-index: 1; font-size: 14px; color: #E2E8F0; margin: 0; animation: fadeInUp 0.5s ease-out 0.1s both; }
 
-/* ---------- BUTTONS ---------- */
 div.stButton > button, div.stFormSubmitButton > button, div.stDownloadButton > button {
     background: linear-gradient(135deg, #3B82F6, #8B5CF6);
     color: #FFFFFF;
@@ -175,7 +168,6 @@ div.stButton > button:hover, div.stFormSubmitButton > button:hover, div.stDownlo
     color: #FFFFFF;
 }
 
-/* Radio rows inside the (now light) quiz cards need dark text too */
 div[role="radiogroup"] label {
     transition: background 0.15s ease;
     border-radius: 8px;
@@ -183,7 +175,6 @@ div[role="radiogroup"] label {
 }
 div[role="radiogroup"] label:hover { background: rgba(15,23,42,0.06); }
 
-/* Uploader */
 section[data-testid="stFileUploaderDropzone"] {
     background: rgba(255,255,255,0.08);
     border: 1.5px dashed rgba(147,197,253,0.45);
@@ -212,7 +203,7 @@ for folder in folders:
 
 @st.cache_resource(show_spinner=False)
 def load_whisper_model():
-    return WhisperModel("tiny", device="cpu", compute_type="int8")
+    return whisper.load_model("base")
 
 
 def format_duration(seconds):
@@ -240,7 +231,7 @@ def render_footer():
     <hr style="border-color: rgba(255,255,255,0.15);">
     <div style="text-align:center; color:#E2E8F0; font-size:13px;">
         <p><strong>Developed by Amulya</strong></p>
-        <p>AI Video Summarization &amp; Quiz Generation</p>
+        <p>AI Video Summarization & Quiz Generation</p>
         <p>Python | Streamlit | Whisper | NLP</p>
     </div>
     """, unsafe_allow_html=True)
@@ -288,8 +279,8 @@ if st.session_state["page"] == "upload":
             progress.progress(25, text="Generating transcript...")
 
             model = load_whisper_model()
-            segments, info = model.transcribe(audio_path)
-            transcript = " ".join(segment.text for segment in segments).strip()
+            result = model.transcribe(audio_path)
+            transcript = result["text"]
             progress.progress(60, text="Generating summary...")
 
             transcript_path = os.path.join(
